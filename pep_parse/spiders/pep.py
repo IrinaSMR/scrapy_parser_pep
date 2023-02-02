@@ -15,7 +15,10 @@ class PepSpider(scrapy.Spider):
         for tr in tbody.css('tr'):
             link_pep_page = tr.css('td').css('a::attr(href)').get()
             if link_pep_page is not None:
-                yield response.follow(link_pep_page, callback=self.parse_pep)
+                yield response.follow(
+                    link_pep_page + '/',
+                    callback=self.parse_pep
+                )
 
     def parse_pep(self, response):
         """Парсит отдельную страницу Pep."""
@@ -23,8 +26,8 @@ class PepSpider(scrapy.Spider):
         data = {
             'number': title.partition(' – ')[0].replace('PEP ', ''),
             'name': title,
-            'status': response.css(
-                ('dt:contains("Status") + dd abbr::text').get()
+            'status': (
+                response.css('dt:contains("Status") + dd abbr::text').get()
             )
         }
         yield PepParseItem(data)

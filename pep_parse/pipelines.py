@@ -8,7 +8,6 @@ BASE_DIR = Path(__file__).parent.parent
 
 class PepParsePipeline:
     pep_status_count = defaultdict(int)
-    total_pep_count = 0
 
     def open_spider(self, spider):
         """Создает путь до директории results."""
@@ -18,7 +17,6 @@ class PepParsePipeline:
     def process_item(self, item, spider):
         """Считает количество статусов."""
         if item.get('status'):
-            self.total_pep_count += 1
             self.pep_status_count[
                 item['status']] = self.pep_status_count.get(
                 item['status'], 0) + 1
@@ -29,7 +27,7 @@ class PepParsePipeline:
         """Записывает результы в csv-файл."""
         results = [('Cтатус', 'Количество')]
         results.extend(self.pep_status_count.items())
-        results.append(('Total: ', self.total_pep_count))
+        results.append(('Total: ', sum(self.pep_status_count.values())))
 
         file_format = dt.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         file_name = f'status_summary_{file_format}.csv'
